@@ -1,6 +1,5 @@
 interface Prize {
   name: string;
-  amount: number; // You can also add an amount if needed
   probability: number; // Probability as a percentage
 }
 
@@ -28,29 +27,29 @@ export default class Slot {
   private prizes: Prize[];
 
   /** Whether there is a previous winner element displayed in reel */
-  private havePreviousWinner: boolean;
+  // private havePreviousWinner: boolean;
 
   /** Container that hold the reel items */
   private reelContainer: HTMLElement | null;
 
   /** Maximum item inside a reel */
-  private maxReelItems: NonNullable<SlotConfigurations['maxReelItems']>;
+  private maxReelItems: NonNullable<SlotConfigurations["maxReelItems"]>;
 
   /** Whether winner should be removed from name list */
-  private shouldRemoveWinner: NonNullable<SlotConfigurations['removeWinner']>;
+  private shouldRemoveWinner: NonNullable<SlotConfigurations["removeWinner"]>;
 
   /** Reel animation object instance */
   private reelAnimation?: Animation;
 
   /** Callback function that runs before spinning reel */
-  private onSpinStart?: NonNullable<SlotConfigurations['onSpinStart']>;
+  private onSpinStart?: NonNullable<SlotConfigurations["onSpinStart"]>;
 
   /** Callback function that runs after spinning reel */
-  private onSpinEnd?: NonNullable<SlotConfigurations['onSpinEnd']>;
+  private onSpinEnd?: NonNullable<SlotConfigurations["onSpinEnd"]>;
 
   /** Callback function that runs after spinning reel */
   private onNameListChanged?: NonNullable<
-    SlotConfigurations['onNameListChanged']
+    SlotConfigurations["onNameListChanged"]
   >;
 
   /**
@@ -70,12 +69,12 @@ export default class Slot {
     onSpinStart,
     onSpinEnd,
     onNameListChanged,
-    prizes // Added prizes to the destructured parameters
+    prizes, // Added prizes to the destructured parameters
   }: SlotConfigurations & { prizes: Prize[] }) {
     this.prizes = prizes; // Use this.prizes to refer to the class property
-    console.log('Loaded Prizes: ', this.prizes);
+    console.log("Loaded Prizes: ", this.prizes);
     this.nameList = [];
-    this.havePreviousWinner = false;
+    // this.havePreviousWinner = false;
     this.reelContainer = document.querySelector(reelContainerSelector);
     this.maxReelItems = maxReelItems;
     this.shouldRemoveWinner = removeWinner;
@@ -86,18 +85,18 @@ export default class Slot {
     // Create reel animation
     this.reelAnimation = this.reelContainer?.animate(
       [
-        { transform: 'none', filter: 'blur(0)' },
-        { filter: 'blur(1px)', offset: 0.5 },
+        { transform: "none", filter: "blur(0)" },
+        { filter: "blur(1px)", offset: 0.5 },
         {
           transform: `translateY(-${(this.maxReelItems - 1) * (7.5 * 16)}px)`,
-          filter: 'blur(0)'
-        }
+          filter: "blur(0)",
+        },
       ],
       {
         duration: this.maxReelItems * 100, // 100ms for 1 item
-        easing: 'ease-in-out',
-        iterations: 1
-      }
+        easing: "ease-in-out",
+        iterations: 1,
+      },
     );
 
     this.reelAnimation?.cancel();
@@ -116,7 +115,7 @@ export default class Slot {
 
     reelItemsToRemove.forEach((element) => element.remove());
 
-    this.havePreviousWinner = false;
+    // this.havePreviousWinner = false;
 
     if (this.onNameListChanged) {
       this.onNameListChanged();
@@ -141,135 +140,121 @@ export default class Slot {
     return this.shouldRemoveWinner;
   }
 
-  /**
-   * Returns a new array where the items are shuffled
-   * @template T  Type of items inside the array to be shuffled
-   * @param array  The array to be shuffled
-   * @returns The shuffled array
-   */
-  private static shuffleNames<T = unknown>(array: T[]): T[] {
-    const keys = Object.keys(array) as unknown[] as number[];
-    const result: T[] = [];
-    for (let k = 0, n = keys.length; k < array.length && n > 0; k += 1) {
-      // eslint-disable-next-line no-bitwise
-      const i = (Math.random() * n) | 0;
-      const key = keys[i];
-      result.push(array[key]);
-      n -= 1;
-      const tmp = keys[n];
-      keys[n] = key;
-      keys[i] = tmp;
-    }
-    return result;
-  }
+  // /**
+  //  * Returns a new array where the items are shuffled
+  //  * @template T  Type of items inside the array to be shuffled
+  //  * @param array  The array to be shuffled
+  //  * @returns The shuffled array
+  //  */
+  // private static shuffleNames<T = unknown>(array: T[]): T[] {
+  //   const keys = Object.keys(array) as unknown[] as number[];
+  //   const result: T[] = [];
+  //   for (let k = 0, n = keys.length; k < array.length && n > 0; k += 1) {
+  //     // eslint-disable-next-line no-bitwise
+  //     const i = (Math.random() * n) | 0;
+  //     const key = keys[i];
+  //     result.push(array[key]);
+  //     n -= 1;
+  //     const tmp = keys[n];
+  //     keys[n] = key;
+  //     keys[i] = tmp;
+  //   }
+  //   return result;
+  // }
 
   /**
    * Function for spinning the slot
    * @returns Whether the spin is completed successfully
    */
   public async spin(): Promise<boolean> {
-    if (!this.nameList.length) {
-      console.error('Name List is empty. Cannot start spinning.');
-      return false;
-    }
-
-    const totalProbability = this.prizes.reduce(
-      (total, prize) => total + prize.probability,
-      0
-    ); // Change here
-    const randomValue = Math.random() * totalProbability;
-    let accumulatedProbability = 0;
-    
-
-    // // Determine the selected prize based on the probabilities
-    // for (const prize of this.prizes) {
-    //   // Change here
-    //   accumulatedProbability += prize.probability;
-    //   if (randomValue <= accumulatedProbability) {
-    //     selectedPrize = prize;
-    //     break;
-    //   }
-    // }
-
-    const selectedPrize = this.prizes.find(prize => {
-      accumulatedProbability += prize.probability;
-      return randomValue <= accumulatedProbability;
-    });
-    
-
-    if (!selectedPrize) {
-      console.error('No prize selected. Something went wrong.');
-      return false;
-    }
-
-    if (this.onSpinStart) {
-      this.onSpinStart();
-    }
-
-    const { reelContainer, reelAnimation } = this;
-    if (!reelContainer || !reelAnimation) {
-      return false;
-    }
-
-    // Shuffle names and create reel items
-    let randomNames = Slot.shuffleNames<string>(this.nameList);
-
-    while (randomNames.length && randomNames.length < this.maxReelItems) {
-      randomNames = [...randomNames, ...randomNames];
-    }
-
-    randomNames = randomNames.slice(
-      0,
-      this.maxReelItems - Number(this.havePreviousWinner)
-    );
-
-    const fragment = document.createDocumentFragment();
-
-    randomNames.forEach((name) => {
-      const newReelItem = document.createElement('div');
-      newReelItem.innerHTML = name;
-      fragment.appendChild(newReelItem);
-    });
-
-    reelContainer.appendChild(fragment);
-
-    console.info('Displayed items: ', randomNames);
-    console.info('Winner: ', randomNames[randomNames.length - 1]);
-
-    // // Remove winner from name list if necessary
-    // if (shouldRemoveWinner) {
-    //   this.nameList.splice(
-    //     this.nameList.findIndex(
-    //       (name) => name === randomNames[randomNames.length - 1],
-    //     ),
-    //     1,
-    //   );
-    // }
-
-    console.info('Remaining: ', this.nameList);
-
-    // Play the spin animation
-    const animationPromise = new Promise((resolve) => {
-      reelAnimation.onfinish = resolve;
-    });
-
-    reelAnimation.play();
-
-    await animationPromise;
-
-    // Sets the current playback time to the end of the animation
-    // Fix issue for animation not playing after the initial play on Safari
-    reelAnimation.finish();
-
-    Array.from(reelContainer.children)
-      .slice(0, reelContainer.children.length - 1)
-      .forEach((element) => element.remove());
-
-    this.havePreviousWinner = true;
-
-    if (this.onSpinEnd) {
-      this.onSpinEnd();
-    }
-    return true;
+  if (!this.nameList.length) {
+    console.error("Name List is empty. Cannot start spinning.");
+    return false;
   }
+
+  const totalProbability = this.prizes.reduce(
+    (total, prize) => total + prize.probability,
+    0
+  );
+
+  const randomValue = Math.random() * totalProbability;
+  let accumulatedProbability = 0;
+  let selectedPrize: Prize | undefined;
+
+  for (const prize of this.prizes) {
+    accumulatedProbability += prize.probability;
+    if (randomValue < accumulatedProbability) {
+      selectedPrize = prize;
+      break;
+    }
+  }
+
+  if (!selectedPrize) {
+    console.error("No prize selected. Something went wrong.");
+    return false;
+  }
+
+  if (this.onSpinStart) {
+    this.onSpinStart();
+  }
+
+  const { reelContainer, reelAnimation } = this;
+  if (!reelContainer || !reelAnimation) {
+    return false;
+  }
+
+  // Populate the reel with all prizes (including their amounts if needed)
+  const fragment = document.createDocumentFragment();
+
+  // Copy the prizes to ensure at least 40 elements in the reel
+  const prizeList = [...this.prizes]; // Start with original prize list
+
+  while (prizeList.length < 40) {
+    prizeList.push(...this.prizes); // Add prizes until reaching at least 40
+  }
+
+  // Trim the list to exactly 40 if it exceeds that
+  prizeList.length = 40;
+
+  // Add all prizes to the reel
+  prizeList.forEach((prize) => {
+    const prizeItem = document.createElement("div");
+    prizeItem.innerHTML = `${prize.name}`;
+    fragment.appendChild(prizeItem);
+  });
+
+  // Append the prize elements to the reel container
+  reelContainer.appendChild(fragment);
+
+  // Play the animation
+  reelAnimation.play();
+  const animationPromise = new Promise((resolve) => {
+    reelAnimation.onfinish = resolve;
+  });
+
+  await animationPromise;
+
+  // Wait for the spinning to finish, then adjust to land on the selected prize
+  await new Promise((resolve) => setTimeout(resolve, 100)); // Short pause before transition
+
+  // Clear the previous reel items
+  Array.from(reelContainer.children).forEach((element) => element.remove());
+
+  // Create the final reel item based on the selected prize
+  const selectedPrizeElement = document.createElement("div");
+  selectedPrizeElement.innerHTML = selectedPrize.name;
+  reelContainer.appendChild(selectedPrizeElement);
+
+  console.info('WINNER:', selectedPrize.name);
+
+  // Call the onSpinEnd callback if provided
+  if (this.onSpinEnd) {
+    this.onSpinEnd();
+  }
+
+  return true;
+}
+
+
+  
 }

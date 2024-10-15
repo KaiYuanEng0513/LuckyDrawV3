@@ -1,86 +1,121 @@
-import confetti from 'canvas-confetti';
-import Slot from '@js/Slot';
-import SoundEffects from '@js/SoundEffects';
-import 'regenerator-runtime/runtime';
-
+import confetti from "canvas-confetti";
+import Slot from "@js/Slot";
+import SoundEffects from "@js/SoundEffects";
+import "regenerator-runtime/runtime";
 
 interface Prize {
   name: string;
-  amount: number; // You can also add an amount if needed
   probability: number; // Probability as a percentage
 }
 
 // Define your fixed prizes
 const prizes: Prize[] = [
-  { name: "Prize A", amount: 100, probability: 80 },  // 50% chance
-  { name: "Prize B", amount: 200, probability: 10 },  // 30% chance
-  { name: "Prize C", amount: 300, probability: 10 },  // 20% chance
+  { name: "RM40 Cash Voucher", probability: 0.8 }, // 50% chance
+  { name: "Keychain", probability: 0.2 }, // 30% chance
+  { name: "环保袋", probability: 0 }, // 20% chance
+  { name: "Pop Mart盲盒", probability: 0 },
+  { name: "realme 13 pro plus手机", probability: 0 },
+  { name: "邮轮票", probability: 0 },
 ];
-
-
-
 
 // Initialize slot machine
 (() => {
-  const drawButton = document.getElementById('draw-button') as HTMLButtonElement | null;
-  const fullscreenButton = document.getElementById('fullscreen-button') as HTMLButtonElement | null;
-  const settingsButton = document.getElementById('settings-button') as HTMLButtonElement | null;
-  const settingsWrapper = document.getElementById('settings') as HTMLDivElement | null;
-  const settingsContent = document.getElementById('settings-panel') as HTMLDivElement | null;
-  const settingsSaveButton = document.getElementById('settings-save') as HTMLButtonElement | null;
-  const settingsCloseButton = document.getElementById('settings-close') as HTMLButtonElement | null;
-  const sunburstSvg = document.getElementById('sunburst') as HTMLImageElement | null;
-  const confettiCanvas = document.getElementById('confetti-canvas') as HTMLCanvasElement | null;
-  const nameListTextArea = document.getElementById('name-list') as HTMLTextAreaElement | null;
-  const removeNameFromListCheckbox = document.getElementById('remove-from-list') as HTMLInputElement | null;
-  const enableSoundCheckbox = document.getElementById('enable-sound') as HTMLInputElement | null;
-
-  
+  const drawButton = document.getElementById(
+    "draw-button",
+  ) as HTMLButtonElement | null;
+  const fullscreenButton = document.getElementById(
+    "fullscreen-button",
+  ) as HTMLButtonElement | null;
+  const settingsButton = document.getElementById(
+    "settings-button",
+  ) as HTMLButtonElement | null;
+  const settingsWrapper = document.getElementById(
+    "settings",
+  ) as HTMLDivElement | null;
+  const settingsContent = document.getElementById(
+    "settings-panel",
+  ) as HTMLDivElement | null;
+  const settingsSaveButton = document.getElementById(
+    "settings-save",
+  ) as HTMLButtonElement | null;
+  const settingsCloseButton = document.getElementById(
+    "settings-close",
+  ) as HTMLButtonElement | null;
+  const sunburstSvg = document.getElementById(
+    "sunburst",
+  ) as HTMLImageElement | null;
+  const confettiCanvas = document.getElementById(
+    "confetti-canvas",
+  ) as HTMLCanvasElement | null;
+  const nameListTextArea = document.getElementById(
+    "name-list",
+  ) as HTMLTextAreaElement | null;
+  const removeNameFromListCheckbox = document.getElementById(
+    "remove-from-list",
+  ) as HTMLInputElement | null;
+  const enableSoundCheckbox = document.getElementById(
+    "enable-sound",
+  ) as HTMLInputElement | null;
 
   // Hide or remove the button
   if (settingsButton) {
-    settingsButton.style.display = 'none'; // Option 1: Hide
+    settingsButton.style.display = "none"; // Option 1: Hide
     // settingsButton.remove(); // Option 2: Remove
   }
 
   // Graceful exit if necessary elements are not found
-  if (!(
-    drawButton
-    && fullscreenButton
-    && settingsButton
-    && settingsWrapper
-    && settingsContent
-    && settingsSaveButton
-    && settingsCloseButton
-    && sunburstSvg
-    && confettiCanvas
-    && nameListTextArea
-    && removeNameFromListCheckbox
-    && enableSoundCheckbox
-  )) {
-    console.error('One or more Element ID is invalid. This is possibly a bug.');
+  if (
+    !(
+      drawButton &&
+      fullscreenButton &&
+      settingsButton &&
+      settingsWrapper &&
+      settingsContent &&
+      settingsSaveButton &&
+      settingsCloseButton &&
+      sunburstSvg &&
+      confettiCanvas &&
+      nameListTextArea &&
+      removeNameFromListCheckbox &&
+      enableSoundCheckbox
+    )
+  ) {
+    console.error("One or more Element ID is invalid. This is possibly a bug.");
     return;
   }
 
   if (!(confettiCanvas instanceof HTMLCanvasElement)) {
-    console.error('Confetti canvas is not an instance of Canvas. This is possibly a bug.');
+    console.error(
+      "Confetti canvas is not an instance of Canvas. This is possibly a bug.",
+    );
     return;
   }
 
   const soundEffects = new SoundEffects();
   const MAX_REEL_ITEMS = 40;
-  const CONFETTI_COLORS = ['#26ccff', '#a25afd', '#ff5e7e', '#88ff5a', '#fcff42', '#ffa62d', '#ff36ff'];
+  const CONFETTI_COLORS = [
+    "#26ccff",
+    "#a25afd",
+    "#ff5e7e",
+    "#88ff5a",
+    "#fcff42",
+    "#ffa62d",
+    "#ff36ff",
+  ];
   let confettiAnimationId;
 
   /** Confeetti animation instance */
   const customConfetti = confetti.create(confettiCanvas, {
     resize: true,
-    useWorker: true
+    useWorker: true,
   });
 
   /** Triggers cconfeetti animation until animation is canceled */
   const confettiAnimation = () => {
-    const windowWidth = window.innerWidth || document.documentElement.clientWidth || document.getElementsByTagName('body')[0].clientWidth;
+    const windowWidth =
+      window.innerWidth ||
+      document.documentElement.clientWidth ||
+      document.getElementsByTagName("body")[0].clientWidth;
     const confettiScale = Math.max(0.5, Math.min(1, windowWidth / 1100));
 
     customConfetti({
@@ -88,8 +123,10 @@ const prizes: Prize[] = [
       gravity: 0.8,
       spread: 90,
       origin: { y: 0.6 },
-      colors: [CONFETTI_COLORS[Math.floor(Math.random() * CONFETTI_COLORS.length)]],
-      scalar: confettiScale
+      colors: [
+        CONFETTI_COLORS[Math.floor(Math.random() * CONFETTI_COLORS.length)],
+      ],
+      scalar: confettiScale,
     });
 
     confettiAnimationId = window.requestAnimationFrame(confettiAnimation);
@@ -100,7 +137,7 @@ const prizes: Prize[] = [
     if (confettiAnimationId) {
       window.cancelAnimationFrame(confettiAnimationId);
     }
-    sunburstSvg.style.display = 'none';
+    sunburstSvg.style.display = "none";
   };
 
   /**  Function to be trigger before spinning */
@@ -114,7 +151,7 @@ const prizes: Prize[] = [
   /**  Functions to be trigger after spinning */
   const onSpinEnd = async () => {
     confettiAnimation();
-    sunburstSvg.style.display = 'block';
+    sunburstSvg.style.display = "block";
     await soundEffects.win();
     drawButton.disabled = false;
     settingsButton.disabled = true;
@@ -122,32 +159,32 @@ const prizes: Prize[] = [
 
   /** Slot instance */
   const slot = new Slot({
-    reelContainerSelector: '#reel',
+    reelContainerSelector: "#reel",
     maxReelItems: MAX_REEL_ITEMS,
     onSpinStart,
     onSpinEnd,
     onNameListChanged: stopWinningAnimation,
-    prizes
+    prizes,
   });
 
-  slot.names = prizes.map(prize => prize.name);
+  slot.names = prizes.map((prize) => prize.name);
 
   /** To open the setting page */
   const onSettingsOpen = () => {
-    nameListTextArea.value = slot.names.length ? slot.names.join('\n') : '';
+    nameListTextArea.value = slot.names.length ? slot.names.join("\n") : "";
     // removeNameFromListCheckbox.checked = slot.shouldRemoveWinnerFromNameList;
     enableSoundCheckbox.checked = !soundEffects.mute;
-    settingsWrapper.style.display = 'block';
+    settingsWrapper.style.display = "block";
   };
 
   /** To close the setting page */
   const onSettingsClose = () => {
     settingsContent.scrollTop = 0;
-    settingsWrapper.style.display = 'none';
+    settingsWrapper.style.display = "none";
   };
 
   // Click handler for "Draw" button
-  drawButton.addEventListener('click', () => {
+  drawButton.addEventListener("click", () => {
     if (!slot.names.length) {
       onSettingsOpen();
       return;
@@ -159,12 +196,14 @@ const prizes: Prize[] = [
   // Hide fullscreen button when it is not supported
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore - for older browsers support
-  if (!(document.documentElement.requestFullscreen && document.exitFullscreen)) {
-    fullscreenButton.remove();
-  }
+  // if (
+  //   !(document.documentElement.requestFullscreen && document.exitFullscreen)
+  // ) {
+  //   fullscreenButton.remove();
+  // }
 
   // Click handler for "Fullscreen" button
-  fullscreenButton.addEventListener('click', () => {
+  fullscreenButton.addEventListener("click", () => {
     if (!document.fullscreenElement) {
       document.documentElement.requestFullscreen();
       return;
@@ -176,12 +215,14 @@ const prizes: Prize[] = [
   });
 
   // Click handler for "Settings" button
-  settingsButton.addEventListener('click', onSettingsOpen);
+  settingsButton.addEventListener("click", onSettingsOpen);
 
   // Click handler for "Save" button for setting page
-  settingsSaveButton.addEventListener('click', () => {
+  settingsSaveButton.addEventListener("click", () => {
     slot.names = nameListTextArea.value
-      ? nameListTextArea.value.split(/\n/).filter((name) => Boolean(name.trim()))
+      ? nameListTextArea.value
+          .split(/\n/)
+          .filter((name) => Boolean(name.trim()))
       : [];
     // slot.shouldRemoveWinnerFromNameList = removeNameFromListCheckbox.checked;
     soundEffects.mute = !enableSoundCheckbox.checked;
@@ -189,5 +230,5 @@ const prizes: Prize[] = [
   });
 
   // Click handler for "Discard and close" button for setting page
-  settingsCloseButton.addEventListener('click', onSettingsClose);
+  settingsCloseButton.addEventListener("click", onSettingsClose);
 })();

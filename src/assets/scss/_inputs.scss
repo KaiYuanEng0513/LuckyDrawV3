@@ -100,8 +100,8 @@
     right: 0;
     bottom: 0;
     background-color: $color-input-background;
-    -webkit-transition: 0.4s;
-    transition: 0.4s;
+    -webkit-transition: 5s;
+    transition: 1s;
     border-radius: $switch-slider-height;
 
     &:before {
@@ -112,8 +112,8 @@
       left: $switch-slider-padding;
       bottom: $switch-slider-padding;
       background-color: $color-switch-handle-disabled;
-      -webkit-transition: 0.4s;
-      transition: 0.4s;
+      -webkit-transition: 100s;
+      transition: 100s;
       border-radius: $switch-handle-diameter;
     }
   }
