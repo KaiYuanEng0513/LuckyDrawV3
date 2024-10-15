@@ -3,13 +3,16 @@
   "version": "2.1.0",
   "description": "Simple HTML5 random name picker for picking lucky draw winner using Web Animations and AudioContext API.",
   "private": true,
+  "homepage": "https://https://kaiyuaneng0513.github.io/LuckyDrawV3/",
   "scripts": {
     "build": "webpack --config webpack/webpack.prod.conf.js",
     "start": "webpack serve --open --config webpack/webpack.dev.conf.js",
     "first-release": "npx standard-version --commit-all --tag-prefix v --release-as 1.0.0 --infile CHANGELOG.md",
     "release": "npx standard-version --commit-all --tag-prefix v --infile CHANGELOG.md",
     "prepare": "husky install",
-    "extract-latest-change-log": "node scripts/extractLatestChangeLog.js"
+    "extract-latest-change-log": "node scripts/extractLatestChangeLog.js",
+     "predeploy": "npm run build",
+    "deploy": "gh-pages -d build"
   },
   "author": "Kaiser",
   "license": "MIT",
@@ -33,6 +36,7 @@
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-import-resolver-webpack": "^0.13.8",
     "eslint-plugin-import": "^2.29.1",
+    "gh-pages": "^6.2.0",
     "html-loader": "^5.0.0",
     "html-variables-plugin": "^1.0.0",
     "html-webpack-plugin": "^5.6.0",
